@@ -1,6 +1,6 @@
-const ExpressionStack = require('../src/stack')
+const Calculator = require('../src/calculator')
 
-describe('ExpressionStack', () => {
+describe('Calculator', () => {
   it.each([
     ['1 + 0 + 25 - 3', 23],
     ['1+1*5-1', 5],
@@ -17,7 +17,7 @@ describe('ExpressionStack', () => {
   ])(
     `should calculate '%s' to return '%f'`,
     (expression, expected) => {
-      const result = new ExpressionStack(expression).calculate()
+      const result = new Calculator(expression).calculate()
       expect(result).toBe(expected)
   })
 })
