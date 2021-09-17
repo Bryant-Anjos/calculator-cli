@@ -6,7 +6,7 @@ const operations = require('./operations')
  */
 class Calculator {
   /** @type {string} */
-  expression
+  #expression
 
   parenthesisRegex = /\(([^\)\(]*)\)/g
 
@@ -14,24 +14,38 @@ class Calculator {
    * @param {string} expression
    */
   constructor (expression) {
-    this.expression = expression
+    this.#expression = expression
   }
 
+  /**
+   * @returns {[Error | undefined, number | undefined]}
+   */
   calculate() {
+    try {
+      const result = this.#calculate()
+      return [undefined, result]
+    } catch (err) {
+      return [err]
+    }
+  }
+
+  #calculate() {
+    this.#validateExpression()
+
     let result
-    let expression = this.expression
+    let expression = this.#expression
     while (result === undefined) {
       const calcs = expression.match(this.parenthesisRegex)
       if (calcs && calcs.length) {
         calcs.forEach(calc => {
           const calcWithoutBrackets = calc.replace('(', '').replace(')', '')
-          const stack = this.splitExpression(calcWithoutBrackets)
-          const value = this.calc(stack)
+          const stack = this.#splitExpression(calcWithoutBrackets)
+          const value = this.#calculateExpression(stack)
           expression = expression.replace(calc, value.toString())
         })
       } else {
-        const stack = this.splitExpression(expression)
-        const value = this.calc(stack)
+        const stack = this.#splitExpression(expression)
+        const value = this.#calculateExpression(stack)
         result = value
       }
     }
@@ -42,7 +56,7 @@ class Calculator {
    * @param {string[]} stack
    * @returns {number}
    */
-  calc(stack) {
+  #calculateExpression(stack) {
     const operatorsPriority = ['^', '/', '*', '+', '-']
     while (operatorsPriority.length) {
 
@@ -51,8 +65,8 @@ class Calculator {
       if (operatorIndex > -1) {
         const operation = operations[operator]
         if (operation) {
-          const previous = parseFloat(stack[operatorIndex - 1])
-          const next = parseFloat(stack[operatorIndex + 1])
+          const previous = stack[operatorIndex - 1]
+          const next = stack[operatorIndex + 1]
           const result = operation(previous, next)
           stack.splice(operatorIndex - 1, 3, result)
         }
@@ -60,6 +74,7 @@ class Calculator {
         operatorsPriority.shift()
       }
     }
+
     return stack[0]
   }
 
@@ -67,12 +82,22 @@ class Calculator {
    * @param {string} expression
    * @returns {string[]}
    */
-  splitExpression(expression) {
+  #splitExpression(expression) {
     const array = expression
       .replace(/\s/g, '')
       .match(/(\d+)|(.)/g)
       .filter(text => text !== '')
     return array
+  }
+
+  #validateExpression() {
+    const openParenthesis = (this.#expression.match(/\(/g) || []).length
+    const closeParenthesis = (this.#expression.match(/\)/g) || []).length
+    const parenthesisDiff = openParenthesis - closeParenthesis
+    if (parenthesisDiff !== 0) {
+      if (parenthesisDiff > 0) throw SyntaxError('Missing a \')\'')
+      if (parenthesisDiff < 0) throw SyntaxError('Missing a \'(\'')
+    }
   }
 }
 
