@@ -1,6 +1,7 @@
 /**
  *
- * @param {Function} operation
+ * @param {number} num1
+ * @param {number} num2
  */
 const validateArgs = (num1, num2) => {
   const firstIsNumber = /\d+/.test(num1)

@@ -1,9 +1,5 @@
 const operations = require('./operations')
 
-/**
- * @param {string} expression
- * @returns {number}
- */
 class Calculator {
   /** @type {string} */
   #expression
@@ -60,6 +56,7 @@ class Calculator {
     const operatorsPriority = ['^', '/', '*', '+', '-']
     while (operatorsPriority.length) {
 
+      /** @type {'+' | '-' | '*' | '/' | '^'} */
       const operator = operatorsPriority[0]
       const operatorIndex = stack.indexOf(operator)
       if (operatorIndex > -1) {
